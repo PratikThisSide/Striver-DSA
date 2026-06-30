@@ -1,17 +1,28 @@
-import { executeJavaCode } from "../services/judge0.js";
+import { executeJavaCode, executeBatchJavaCode } from "../services/judge0.js";
 import Problem from "../models/Problem.js";
 
 export async function runCode(req, res) {
   try {
-    const { code } = req.body;
+    const { code, slug } = req.body;
     if (!code) return res.status(400).json({ error: "No code provided" });
 
-    const problem = await Problem.findOne({ where: { slug: req.body.slug } });
+    const problem = await Problem.findOne({ where: { slug } });
     if (!problem) return res.status(404).json({ error: "Problem not found" });
 
-    const sampleInput = problem.sampleTestCases.map((tc) => tc.input).join("\n");
-    const result = await executeJavaCode(code, sampleInput);
-    res.json(result);
+    // Run only the first sample test case for "Run" (fastest feedback)
+    const firstSample = problem.sampleTestCases?.[0];
+    if (!firstSample) return res.status(400).json({ error: "No sample test cases" });
+
+    const result = await executeJavaCode(code, firstSample.input);
+    const expected = firstSample.expectedOutput.trim();
+    const actual = (result.stdout || "").trim();
+
+    res.json({
+      ...result,
+      passed: actual === expected && result.passed,
+      expected,
+      actual,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -26,32 +37,34 @@ export async function submitCode(req, res) {
     if (!problem) return res.status(404).json({ error: "Problem not found" });
 
     const allTestCases = [...(problem.sampleTestCases || []), ...(problem.hiddenTestCases || [])];
-    const results = [];
+    if (allTestCases.length === 0) return res.status(400).json({ error: "No test cases" });
 
-    for (const tc of allTestCases) {
-      const result = await executeJavaCode(code, tc.input);
-      const expected = tc.expectedOutput.trim();
+    // Execute all test cases in parallel via batch API
+    const results = await executeBatchJavaCode(code, allTestCases);
+
+    const mapped = results.map((result, i) => {
+      const expected = allTestCases[i].expectedOutput.trim();
       const actual = (result.stdout || "").trim();
-      results.push({
+      return {
         passed: actual === expected && result.passed,
         expected,
         actual,
         time: result.time,
         memory: result.memory,
-      });
-    }
+      };
+    });
 
-    const allPassed = results.every((r) => r.passed);
-    const maxTime = Math.max(...results.map((r) => parseFloat(r.time) || 0));
-    const totalMemory = results[results.length - 1]?.memory || "N/A";
+    const allPassed = mapped.every((r) => r.passed);
+    const maxTime = Math.max(...mapped.map((r) => parseFloat(r.time) || 0));
+    const lastMem = mapped[mapped.length - 1]?.memory || "N/A";
 
     res.json({
       passed: allPassed,
-      passedCount: results.filter((r) => r.passed).length,
-      totalCount: results.length,
-      results,
+      passedCount: mapped.filter((r) => r.passed).length,
+      totalCount: mapped.length,
+      results: mapped,
       runtime: maxTime.toFixed(3) + "s",
-      memory: totalMemory,
+      memory: lastMem,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

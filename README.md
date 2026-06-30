@@ -43,7 +43,7 @@
     </td>
     <td width="50%">
       <h3>💻 In-Browser Code Editor</h3>
-      <p>Monaco Editor (VS Code engine) with Java syntax highlighting. Run code against sample test cases or submit against hidden test cases via Judge0.</p>
+      <p>Monaco Editor (VS Code engine) with Java syntax highlighting. Run code against sample test cases or submit against hidden test cases via Judge0 batch API for fast parallel execution.</p>
     </td>
   </tr>
   <tr>
@@ -152,14 +152,26 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for full setup instructions.
 
 ## 📝 Sample Problems
 
-| # | Problem | Difficulty | Topic |
-|---|---------|-----------|-------|
-| 1 | [Two Sum](./frontend/src/pages/ProblemPage.jsx) | 🟢 Easy | Arrays Basics |
-| 2 | [Reverse an Array](./frontend/src/pages/ProblemPage.jsx) | 🟢 Easy | Arrays Basics |
-| 3 | [Binary Search (Find Target)](./frontend/src/pages/ProblemPage.jsx) | 🟢 Easy | Binary Search |
-| 4 | [First and Last Position](./frontend/src/pages/ProblemPage.jsx) | 🟡 Medium | Binary Search |
+**56 problems** across 15 topics with brute-force + optimal solutions in Java:
 
-Each problem includes: brute-force solution, optimal solution, and step-by-step explanation.
+| Topic | Problems | Difficulty Range |
+|-------|----------|-----------------|
+| 📊 Arrays Basics | 8 | Easy → Medium |
+| 🔄 Recursion Basics | 5 | Easy |
+| 🔀 Sorting Algorithms | 5 | Easy → Medium |
+| 🔍 Binary Search | 6 | Easy → Medium |
+| 📝 Strings | 5 | Easy → Medium |
+| 🔗 Linked List | 3 | Easy |
+| 🗂️ Stack & Queue | 4 | Easy → Medium |
+| 🌳 Trees | 3 | Easy |
+| 🌲 BST | 2 | Easy → Medium |
+| ⛰️ Heaps | 2 | Easy → Medium |
+| 🕸️ Graphs | 3 | Easy → Medium |
+| 💎 Greedy | 4 | Easy → Medium |
+| 🧩 DP | 4 | Easy → Medium |
+| 🔤 Tries | 2 | Medium |
+
+Each problem includes: brute-force solution, optimal solution, sample + hidden test cases, and step-by-step explanation.
 
 <br/>
 
